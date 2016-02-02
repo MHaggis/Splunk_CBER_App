@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}Live Response Status{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2 main">
+            <h1>Live Response status</h1>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <tr>
+                    <th>Sensor ID</th>
+                    <th>Live Response</th>
+                </tr>
+                {% for sensor_id in sensors %}
+                <tr>
+                    <td>{{ sensor_id }}</td>
+                    <td><a href="/sensor_result/{{ sensor_id }}">Results</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}Live Response Results for sensor {{ sensor_id }}{% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-md-10 col-md-offset-1 main">
+        <h1>Live Response Results</h1>
+        {% if results.browser_history is defined %}
+        <h2><a href="/browser_history/{{ sensor_id }}">Get Browser History</a></h2>
+        {% endif %}
+        {% if results.running_services is defined %}
+        <h2>Running services</h2>
+        <pre>{{ results.running_services }}</pre>
+        {% endif %}
+        {% if results.running_processes is defined %}
+        <h2>Running processes</h2>
+        <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <th>Cb Link</th>
+                <th>Username</th>
+                <th>Process Command Line</th>
+            </tr>
+            {% for proc in results.running_processes %}
+            <tr>
+                <td><a href="https://cb5.wedgie.org/#analyze/{{ proc.proc_guid }}/1">Analyze Process</a></td>
+                <td>{{ proc.username }}</td>
+                <td>{{ proc.command_line }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}Browser history{% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-md-10 col-md-offset-1 main">
+        <h1>Browser History</h1>
+
+        <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <th></th>
+                <th>Page</th>
+                <th>Last Visit</th>
+            </tr>
+            {% for url in urls %}
+            <tr>
+                <td><img src="{{ url.favicon }}" width="12" height="12"></td>
+                <td><a href="{{ url.url }}">{{ url.title }}</a></td>
+                <td>{{ url.last_visit_time }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
