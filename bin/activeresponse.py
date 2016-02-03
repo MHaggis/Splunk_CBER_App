@@ -1,11 +1,17 @@
 #
 # Just log into /tmp/myactiveresponse.log
 #
+
+#
+# TODO:
+# Ask Kyle how dependencies are handled
+#
 from __future__ import absolute_import
 from ConfigParser import RawConfigParser
 from action import FlushAction, IsolateAction
 from cbapi import CbApi
-
+import json
+import requests
 
 class Device:
     path = "dummy.log"
@@ -39,10 +45,7 @@ class Device:
 
         print "blacklisting md5:%s" % (md5)
 
-        global cbtoken
-        global cbserver
-
-        headers = {'X-AUTH-TOKEN': cbtoken}
+        headers = {'X-AUTH-TOKEN': self.token}
 
         data = {"md5hash": md5,
                 "text": "Blacklist From Splunk",
@@ -51,7 +54,7 @@ class Device:
                 "last_ban_host": 0,
                 "enabled": True}
 
-        r = requests.post("https://%s/api/v1/banning/blacklist" % (cbserver),
+        r = requests.post("https://%s/api/v1/banning/blacklist" % (self.cb_server),
                           headers=headers,
                           data=json.dumps(data),
                           verify=False)
