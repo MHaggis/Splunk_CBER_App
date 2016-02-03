@@ -30,6 +30,40 @@ class Device:
         self.fp.write("Initializing with hosts mapping: %s\n" % str(hosts_mapping))
         self.fp.close()
 
+    def blacklist_binary(self, md5):
+        """
+        Performs a POST to the Carbon Black Server API for blacklisting an MD5 hash
+        :param md5:
+        :return:
+        """
+
+        print "blacklisting md5:%s" % (md5)
+
+        global cbtoken
+        global cbserver
+
+        headers = {'X-AUTH-TOKEN': cbtoken}
+
+        data = {"md5hash": md5,
+                "text": "Blacklist From Splunk",
+                "last_ban_time": 0,
+                "ban_count": 0,
+                "last_ban_host": 0,
+                "enabled": True}
+
+        r = requests.post("https://%s/api/v1/banning/blacklist" % (cbserver),
+                          headers=headers,
+                          data=json.dumps(data),
+                          verify=False)
+
+        if r.status_code == 409:
+            print "This md5 hash is already blacklisted"
+        elif r.status_code == 200:
+            print "Carbon Black Server API Success"
+        else:
+            print "CarbonBlack Server API returned an error: %d" % (r.status_code)
+            print "Be sure to check the Carbon Black API token"
+
     def get_sensor_id_from_ip(self, ip):
         filters = {}
         sensors = self.cb.sensors(filters)
@@ -78,7 +112,7 @@ class Device:
             sensor_id = self.get_sensor_id_from_ip(data[0].get('src_ip'))
             if not sensor_id:
                 return
-            
+
             print "Flushing sensor id: %s" % sensor_id
             #
             # We will always flush the sensor that triggered the action, so that we get the most up-to-date
