@@ -2,41 +2,85 @@
 # Just log into /tmp/myactiveresponse.log
 #
 from __future__ import absolute_import
-import time
+from ConfigParser import RawConfigParser
+from action import FlushAction, IsolateAction
+from cbapi import CbApi
 
 
 class Device:
     path = "dummy.log"
 
-    def __log(self, msg):
-        self.fp.write("[%s] %s\n" % (time.ctime(), msg))
-        pass
-
     def __init__(self, hosts_mapping):
-        print("The device is being initialized")
+        config_data = RawConfigParser()
+        config_data.read("config.ini")
+
+        self.cb_server = config_data.get('cb_server', 'url')
+        self.token = config_data.get('cb_server', 'token')
+
+        self.cb = CbApi(self.cb_server, token=self.token, ssl_verify=False)
+
+        self.logger = ""
+
+        self.fp = open("/tmp/arlog1.log", "a")
         self.hosts_mapping = hosts_mapping
+        self.fp.write("Initializing with hosts mapping: %s\n" % str(hosts_mapping))
+        self.fp.close()
 
-    def submit_action(self, settings, results):
-        log_file = settings["log_file"]
-        log_fp = open(log_file, "a")
-        log_fp.write("[SUBMIT] AR_Log settings=\"%s\" and results:[[%s]]\n" % (str(settings), str(results)))
-        log_fp.close() 
+    def get_sensor_id_from_ip(self):
+        return 0
 
-    def run_action(self, settings, results):
-        log_file = settings["log_file"]
-        log_fp = open(log_file, "a")
-        log_fp.write("Running the action with data:%s\n" % str(results))
-        log_fp.close()
+    def submit_action(self, settings, data):
+        """
+        This gets called when the user executes a search
+        :param settings:
+        :param data:
+        :return:
+        """
+        self.fp = open("/tmp/arlog1.log", "a")
+        self.fp.write("*** Submit action with settings[%s] and data[%s]\n" % (str(settings), str(data)))
+        self.fp.close()
 
-    def undo_action(self):
-        self.__log("I am undoing the action")
-        pass
+    def run_action(self, settings, data):
+        """
+        This gets called when the user clicks the validate button
+        :param settings:
+        :param data:
+        :return:
+        """
+        self.fp = open("/tmp/arlog1.log", "a")
+        self.fp.write("+++ Run action\n")
+        self.fp.write("+++ Settings = %s\n" % str(settings))
+        self.fp.write("+++ Data = %s\n" % str(data))
+        self.fp.close()
 
-    def fetch_feedback(self):
-        self.__log("I am fetching the feedback")
-        pass
+        """
+        settings:
+        [{'action_type': 'banhash', 'flow': 'submit', 'group': 'Z5tLJDgLfSBvItEdSjPK', 'b64records': '', 'path': 'dummy.log',
+        'fieldname': 'src_ip', 'fieldvalue': '10.11.6.5'}]
+        and
+        data :
+        [{'dest_ip': '119.147.138.52', 'src_ip': '10.11.6.5'}]
+        """
+        action_type = settings.get('action_type', '')
+        if action_type == 'banhash':
+            pass
+        elif action_type == 'isolate':
+            pass
+        elif action_type == 'flush':
+            src_ip = data.get('src_ip', '')
+            if src_ip == '':
+                #
+                # Error out
+                #
+                return
 
-    def expiration(self):
-        self.__log("I am running the expiration")
-        pass
-
+            sensor_id = self.get_sensor_id_from_ip(src_ip)
+            #
+            # We will always flush the sensor that triggered the action, so that we get the most up-to-date
+            # information into the Cb console.
+            #
+            flusher = FlushAction(self.cb, self.logger)
+            flusher.action(sensor_id)
+            pass
+        else:
+            return
