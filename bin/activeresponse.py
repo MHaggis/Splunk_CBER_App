@@ -4,11 +4,12 @@
 #
 from __future__ import absolute_import
 from ConfigParser import RawConfigParser
-from action import FlushAction, IsolateAction
+from cbaction import FlushAction, IsolateAction
 from cbapi import CbApi
 import json
 import requests
 import logging
+import os
 
 
 class PrerequisiteFailedError(Exception):
@@ -24,7 +25,8 @@ class Device(object):
         # be sure to test the current path we get from splunk so we can read the config file
         #
         config_data = RawConfigParser()
-        config_data.read("config.ini")
+        my_path = os.path.dirname(os.path.abspath(__file__))
+        config_data.read(os.path.join(my_path, "config.ini"))
 
         self.cb_server = config_data.get('cb_server', 'url')
         self.token = config_data.get('cb_server', 'token')
