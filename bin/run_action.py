@@ -16,28 +16,58 @@ import sys
 #
 # This was taken from an example /tmp/arlog1.log
 #
-settings = [{'flow': 'submit', 'group': 'Z5tLJDgLfSBvItEdSjPK', 'b64records': '', 'path': 'dummy.log',
-             'fieldname': 'src_ip', 'fieldvalue': '10.11.6.5'}]
-settings[0]['action_type'] = 'flush'
-
+# JAG: This will be sent from the Splunk interface to me via JSON
+settings = [
+    {'flow': 'submit',
+     'group': 'Z5tLJDgLfSBvItEdSjPK',
+     'b64records': '',
+     'path': 'dummy.log',
+     'fieldname': 'src_ip',
+     'fieldvalue': '10.11.6.5'}
+]
+settings[0]['action_type'] = 'isolate'
 
 # This is one event being sent from Splunk, you can add more key/values here to match your needs
-results = [{'__mv__serial': '', 'eventtype': '', '_kv': '1', '__mv__indextime': '', '__mv_eventtype': '',
-           '__mv__time': '', '__mv_sourcetype': '', 'splunk_server': 'stricaud-mbpr15.splunk.local',
-           '__mv__confstr': '', '__mv__sourcetype': '', 'index': 'main',
-           '_raw': 'This is the log that I sent which triggered the active response', '__mv__raw': '',
-           '__mv_splunk_server': '', '__mv_index': '', '__mv_linecount': '', '_time': '1429133464',
-           'source': '/Users/stricaud/foobar.txt', '__mv__kv': '', '_serial': '0', '_sourcetype': 'foobar',
-           '_indextime': '1429133464', '__mv_host': '', 'timestamp': 'none', 'host': 'stricaud-mbpr15.splunk.local',
-           '_confstr': 'source::/Users/stricaud/foobar.txt|host::stricaud-mbpr15.splunk.local|foobar',
-           'sourcetype': 'foobar', '__mv_timestamp': '', '__mv_source': '', 'linecount': '1'}]
+results = [
+    {'__mv__serial': '',
+     'eventtype': '',
+     '_kv': '1',
+     '__mv__indextime': '',
+     '__mv_eventtype': '',
+     '__mv__time': '',
+     '__mv_sourcetype': '',
+     'splunk_server': 'stricaud-mbpr15.splunk.local',
+     '__mv__confstr': '',
+     '__mv__sourcetype': '',
+     'index': 'main',
+     '_raw': 'This is the log that I sent which triggered the active response',
+     '__mv__raw': '',
+     '__mv_splunk_server': '',
+     '__mv_index': '',
+     '__mv_linecount': '',
+     '_time': '1429133464',
+     'source': '/Users/stricaud/foobar.txt',
+     '__mv__kv': '',
+     '_serial': '0',
+     '_sourcetype': 'foobar',
+     '_indextime': '1429133464',
+     '__mv_host': '',
+     'timestamp': 'none',
+     'host': 'stricaud-mbpr15.splunk.local',
+     '_confstr': 'source::/Users/stricaud/foobar.txt|host::stricaud-mbpr15.splunk.local|foobar',
+     'sourcetype': 'foobar',
+     '__mv_timestamp': '',
+     '__mv_source': '',
+     'linecount': '1'
+     }
+]
 
 #
 # sample data
 # This was taken from an example /tmp/arlog1.log
 #
 results[0]['dest_ip'] = '192.168.214.244'
-results[0]['src_ip'] = '192.168.214.244'
+results[0]['src_ip'] = '172.22.5.152'
 
 # This is what Splunk gives, which was configured in our KV store
 hosts_mapping = {'network.firewall.vendor': '192.168.0.23 fw2 fw-zone3 192.168.123.8'}

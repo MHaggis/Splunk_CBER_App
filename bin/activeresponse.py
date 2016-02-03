@@ -1,8 +1,4 @@
 #
-# Just log into /tmp/myactiveresponse.log
-#
-
-#
 # TODO:
 # Ask Kyle how dependencies are handled
 #
@@ -12,8 +8,14 @@ from action import FlushAction, IsolateAction
 from cbapi import CbApi
 import json
 import requests
+import logging
 
-class Device:
+
+class PrerequisiteFailedError(Exception):
+    pass
+
+
+class Device(object):
     path = "dummy.log"
 
     def __init__(self, hosts_mapping):
@@ -29,12 +31,9 @@ class Device:
 
         self.cb = CbApi(self.cb_server, token=self.token, ssl_verify=False)
 
-        self.logger = ""
+        self.logger = logging.getLogger(__name__)
 
-        self.fp = open("/tmp/arlog1.log", "a")
         self.hosts_mapping = hosts_mapping
-        self.fp.write("Initializing with hosts mapping: %s\n" % str(hosts_mapping))
-        self.fp.close()
 
     def blacklist_binary(self, md5):
         """
@@ -75,8 +74,20 @@ class Device:
             src_ip = filter(bool, sensor.get('network_adapters', '').split('|'))
             for ip_address in src_ip:
                 if unicode(ip, "utf-8") == ip_address.split(',')[0]:
-                    return sensor.get('id', '')
-        return ''
+                    return sensor.get('id', None)
+        return None
+
+    def pre_action(self, action_type, data):
+        if action_type in ['isolate', 'flush']:
+            src_ip = data[0].get('src_ip', None)
+            if not src_ip:
+                raise PrerequisiteFailedError("No source IP address provided")
+            sensor_id = self.get_sensor_id_from_ip(data[0].get('src_ip'))
+            if not sensor_id:
+                raise PrerequisiteFailedError("Cannot find sensor associated with source IP address %s" % src_ip)
+
+            return sensor_id
+        return None
 
     def submit_action(self, settings, data):
         """
@@ -85,9 +96,28 @@ class Device:
         :param data:
         :return:
         """
-        self.fp = open("/tmp/arlog1.log", "a")
-        self.fp.write("*** Submit action with settings[%s] and data[%s]\n" % (str(settings), str(data)))
-        self.fp.close()
+
+        action_type = settings[0].get('action_type', '')
+        try:
+            sensor_id = self.pre_action(action_type, data)
+        except PrerequisiteFailedError as e:
+            # TODO: how do we signal failure back to ARF ARFARFARF
+            self.logger.error(e.message)
+
+        # TODO: return success
+
+    def flush_action(self, sensor_id):
+        print "Flushing sensor id: %s" % sensor_id
+        #
+        # We will always flush the sensor that triggered the action, so that we get the most up-to-date
+        # information into the Cb console.
+        #
+        flusher = FlushAction(self.cb, self.logger)
+        flusher.action(sensor_id)
+
+    def isolate_action(self, sensor_id):
+        isolator = IsolateAction(self.cb, self.logger)
+        isolator.action(sensor_id)
 
     def run_action(self, settings, data):
         """
@@ -106,23 +136,19 @@ class Device:
         [{'dest_ip': '119.147.138.52', 'src_ip': '10.11.6.5'}]
         """
         action_type = settings[0].get('action_type', '')
-        if action_type == 'banhash':
-            pass
-        elif action_type == 'isolate':
-            pass
-        elif action_type == 'flush':
-
-            sensor_id = self.get_sensor_id_from_ip(data[0].get('src_ip'))
-            if not sensor_id:
-                return
-
-            print "Flushing sensor id: %s" % sensor_id
-            #
-            # We will always flush the sensor that triggered the action, so that we get the most up-to-date
-            # information into the Cb console.
-            #
-            flusher = FlushAction(self.cb, self.logger)
-            flusher.action(sensor_id)
-            pass
+        # get sensor ID if required
+        try:
+            sensor_id = self.pre_action(action_type, data)
+        except PrerequisiteFailedError as e:
+            self.logger.error(e.message)
         else:
-            return
+            if action_type == 'banhash':
+                pass
+            elif action_type == 'isolate':
+                self.isolate_action(sensor_id)
+            elif action_type == 'flush':
+                self.flush_action(sensor_id)
+            elif action_type == 'liveresponse':
+                # Run live response script against the endpoint
+                # TODO: how can we report results back to Splunk?
+                pass
