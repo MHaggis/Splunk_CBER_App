@@ -47,6 +47,7 @@ class Device:
         :param data:
         :return:
         """
+        print "run_action ENTER"
         self.fp = open("/tmp/arlog1.log", "a")
         self.fp.write("+++ Run action\n")
         self.fp.write("+++ Settings = %s\n" % str(settings))
@@ -61,7 +62,7 @@ class Device:
         data :
         [{'dest_ip': '119.147.138.52', 'src_ip': '10.11.6.5'}]
         """
-        action_type = settings.get('action_type', '')
+        action_type = settings[0].get('action_type', '')
         if action_type == 'banhash':
             pass
         elif action_type == 'isolate':
