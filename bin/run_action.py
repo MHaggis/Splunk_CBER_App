@@ -16,8 +16,11 @@ import sys
 #
 # This was taken from an example /tmp/arlog1.log
 #
-settings = [{'action_type': 'banhash', 'flow': 'submit', 'group': 'Z5tLJDgLfSBvItEdSjPK', 'b64records': '', 'path': 'dummy.log',
+settings = [{'flow': 'submit', 'group': 'Z5tLJDgLfSBvItEdSjPK', 'b64records': '', 'path': 'dummy.log',
              'fieldname': 'src_ip', 'fieldvalue': '10.11.6.5'}]
+settings[0]['action_type'] = 'flush'
+
+
 # This is one event being sent from Splunk, you can add more key/values here to match your needs
 results = [{'__mv__serial': '', 'eventtype': '', '_kv': '1', '__mv__indextime': '', '__mv_eventtype': '',
            '__mv__time': '', '__mv_sourcetype': '', 'splunk_server': 'stricaud-mbpr15.splunk.local',
@@ -33,8 +36,8 @@ results = [{'__mv__serial': '', 'eventtype': '', '_kv': '1', '__mv__indextime': 
 # sample data
 # This was taken from an example /tmp/arlog1.log
 #
-results[0]['dest_ip'] = '111.111.111.111'
-results[0]['source_ip'] = '111.111.111.111'
+results[0]['dest_ip'] = '192.168.214.244'
+results[0]['src_ip'] = '192.168.214.244'
 
 # This is what Splunk gives, which was configured in our KV store
 hosts_mapping = {'network.firewall.vendor': '192.168.0.23 fw2 fw-zone3 192.168.123.8'}

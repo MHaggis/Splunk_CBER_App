@@ -11,6 +11,10 @@ class Device:
     path = "dummy.log"
 
     def __init__(self, hosts_mapping):
+        #
+        # WARNING/TODO:
+        # be sure to test the current path we get from splunk so we can read the config file
+        #
         config_data = RawConfigParser()
         config_data.read("config.ini")
 
@@ -26,8 +30,16 @@ class Device:
         self.fp.write("Initializing with hosts mapping: %s\n" % str(hosts_mapping))
         self.fp.close()
 
-    def get_sensor_id_from_ip(self):
-        return 0
+    def get_sensor_id_from_ip(self, ip):
+        filters = {}
+        sensors = self.cb.sensors(filters)
+
+        for sensor in sensors:
+            src_ip = filter(bool, sensor.get('network_adapters', '').split('|'))
+            for ip_address in src_ip:
+                if unicode(ip, "utf-8") == ip_address.split(',')[0]:
+                    return sensor.get('id', '')
+        return ''
 
     def submit_action(self, settings, data):
         """
@@ -48,12 +60,6 @@ class Device:
         :return:
         """
         print "run_action ENTER"
-        self.fp = open("/tmp/arlog1.log", "a")
-        self.fp.write("+++ Run action\n")
-        self.fp.write("+++ Settings = %s\n" % str(settings))
-        self.fp.write("+++ Data = %s\n" % str(data))
-        self.fp.close()
-
         """
         settings:
         [{'action_type': 'banhash', 'flow': 'submit', 'group': 'Z5tLJDgLfSBvItEdSjPK', 'b64records': '', 'path': 'dummy.log',
@@ -68,14 +74,12 @@ class Device:
         elif action_type == 'isolate':
             pass
         elif action_type == 'flush':
-            src_ip = data.get('src_ip', '')
-            if src_ip == '':
-                #
-                # Error out
-                #
-                return
 
-            sensor_id = self.get_sensor_id_from_ip(src_ip)
+            sensor_id = self.get_sensor_id_from_ip(data[0].get('src_ip'))
+            if not sensor_id:
+                return
+            
+            print "Flushing sensor id: %s" % sensor_id
             #
             # We will always flush the sensor that triggered the action, so that we get the most up-to-date
             # information into the Cb console.
