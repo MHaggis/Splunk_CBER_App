@@ -19,7 +19,7 @@ import sys
 settings = [{'action_type': 'banhash', 'flow': 'submit', 'group': 'Z5tLJDgLfSBvItEdSjPK', 'b64records': '', 'path': 'dummy.log',
              'fieldname': 'src_ip', 'fieldvalue': '10.11.6.5'}]
 # This is one event being sent from Splunk, you can add more key/values here to match your needs
-results = {'__mv__serial': '', 'eventtype': '', '_kv': '1', '__mv__indextime': '', '__mv_eventtype': '',
+results = [{'__mv__serial': '', 'eventtype': '', '_kv': '1', '__mv__indextime': '', '__mv_eventtype': '',
            '__mv__time': '', '__mv_sourcetype': '', 'splunk_server': 'stricaud-mbpr15.splunk.local',
            '__mv__confstr': '', '__mv__sourcetype': '', 'index': 'main',
            '_raw': 'This is the log that I sent which triggered the active response', '__mv__raw': '',
@@ -27,14 +27,14 @@ results = {'__mv__serial': '', 'eventtype': '', '_kv': '1', '__mv__indextime': '
            'source': '/Users/stricaud/foobar.txt', '__mv__kv': '', '_serial': '0', '_sourcetype': 'foobar',
            '_indextime': '1429133464', '__mv_host': '', 'timestamp': 'none', 'host': 'stricaud-mbpr15.splunk.local',
            '_confstr': 'source::/Users/stricaud/foobar.txt|host::stricaud-mbpr15.splunk.local|foobar',
-           'sourcetype': 'foobar', '__mv_timestamp': '', '__mv_source': '', 'linecount': '1'}
+           'sourcetype': 'foobar', '__mv_timestamp': '', '__mv_source': '', 'linecount': '1'}]
 
 #
 # sample data
 # This was taken from an example /tmp/arlog1.log
 #
-results['dest_ip'] = '111.111.111.111'
-results['source_ip'] = '111.111.111.111'
+results[0]['dest_ip'] = '111.111.111.111'
+results[0]['source_ip'] = '111.111.111.111'
 
 # This is what Splunk gives, which was configured in our KV store
 hosts_mapping = {'network.firewall.vendor': '192.168.0.23 fw2 fw-zone3 192.168.123.8'}
