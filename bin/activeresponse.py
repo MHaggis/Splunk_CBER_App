@@ -37,7 +37,7 @@ class Device(object):
 
         self.hosts_mapping = hosts_mapping
 
-    def blacklist_binary(self, md5):
+    def ban_hash(self, md5):
         """
         Performs a POST to the Carbon Black Server API for blacklisting an MD5 hash
         :param md5:
@@ -55,7 +55,9 @@ class Device(object):
                 "last_ban_host": 0,
                 "enabled": True}
 
-        r = requests.post("https://%s/api/v1/banning/blacklist" % (self.cb_server),
+        print "connecting to: %s/api/v1/banning/blacklist..." % (self.cb_server)
+
+        r = requests.post("%s/api/v1/banning/blacklist" % (self.cb_server),
                           headers=headers,
                           data=json.dumps(data),
                           verify=False)
@@ -99,7 +101,7 @@ class Device(object):
         :return:
         """
 
-        action_type = settings[0].get('action_type', '')
+        action_type = settings.get('action_type', '')
         try:
             sensor_id = self.pre_action(action_type, data)
         except PrerequisiteFailedError as e:
@@ -128,16 +130,7 @@ class Device(object):
         :param data:
         :return:
         """
-        print "run_action ENTER"
-        """
-        settings:
-        [{'action_type': 'banhash', 'flow': 'submit', 'group': 'Z5tLJDgLfSBvItEdSjPK', 'b64records': '', 'path': 'dummy.log',
-        'fieldname': 'src_ip', 'fieldvalue': '10.11.6.5'}]
-        and
-        data :
-        [{'dest_ip': '119.147.138.52', 'src_ip': '10.11.6.5'}]
-        """
-        action_type = settings[0].get('action_type', '')
+        action_type = settings.get('action_type', '')
         # get sensor ID if required
         try:
             sensor_id = self.pre_action(action_type, data)
@@ -145,12 +138,28 @@ class Device(object):
             self.logger.error(e.message)
         else:
             if action_type == 'banhash':
+                #
+                # Pull out md5 from 'data'
+                #
+                md5 = data.get('md5', None)
+                if not md5:
+                    #
+                    # Error out if we can't
+                    #
+                    self.logger.error("Error: Unable to get an MD5 hash from parameters")
+                    return
+                #
+                # Ban the hash
+                #
+                self.ban_hash(md5)
                 pass
             elif action_type == 'isolate':
                 self.isolate_action(sensor_id)
             elif action_type == 'flush':
                 self.flush_action(sensor_id)
             elif action_type == 'liveresponse':
+                #
                 # Run live response script against the endpoint
                 # TODO: how can we report results back to Splunk?
+                #
                 pass
