@@ -1,4 +1,4 @@
-# Copyright 2011-2014 Splunk, Inc.
+# Copyright 2011-2015 Splunk, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"): you may
 # not use this file except in compliance with the License. You may obtain
@@ -79,6 +79,9 @@ class Argument(object):
         """
         arg = ET.SubElement(parent, "arg")
         arg.set("name", self.name)
+
+        if self.title is not None:
+            ET.SubElement(arg, "title").text = self.title
 
         if self.description is not None:
             ET.SubElement(arg, "description").text = self.description
