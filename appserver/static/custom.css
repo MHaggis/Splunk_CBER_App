@@ -1,0 +1,170 @@
+/* latin-ext */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  src: url('Oswald-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* latin */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  src: url('Oswald-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+@font-face {
+    font-family: 'roboto_condensedlight';
+    src: url('RobotoCondensed-Light-webfont.eot');
+    src: url('RobotoCondensed-Light-webfont.eot?#iefix') format('embedded-opentype'),
+         url('RobotoCondensed-Light-webfont.woff') format('woff'),
+         url('RobotoCondensed-Light-webfont.ttf') format('truetype'),
+         url('RobotoCondensed-Light-webfont.svg#roboto_condensedlight') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+/* Change the dropdown menu font color to teal*/
+.dropdown-menu li>a {
+	color: teal;
+}
+
+/* Add some shadow to the drop down menu */
+.slideNavPlaceHolder {
+    -webkit-box-shadow: 14px 14px 8px -2px rgba(0,0,0,0.75);
+    -moz-box-shadow: 14px 14px 8px -2px rgba(0,0,0,0.75);
+    box-shadow: 14px 14px 8px -2px rgba(0,0,0,0.75);
+}
+
+/* Force wrapping of long lines with no spaces */
+.results-table .wrapped-results th, .results-table .wrapped-results td {
+    word-break: break-all;
+}
+
+/* Remove border that surrounds panels */
+.dashboard-panel.clearfix {
+    border-width: 0px;
+}
+
+/* This is required to get the footer the same background color as the rest*/
+html, .panel-body.html {
+	background: #43434A;
+}
+
+/* Forces the color of the elapsed time counter*/
+.refresh-time-indicator.pull-right.splunk-view.splunk-timeindicator, .time-freshness {
+	color: #FFFFFF !important;
+}
+
+
+/* Set the font size and color for the footer */
+.footer, .nav, .nav-footer, .nav.nav-footer a:link {
+	color: white;
+    font-size:14px !important;
+}
+
+/* Set the background color for the footer */
+.footer, .shared-footer {
+	background: #43434A;
+	background-image: none;
+	color: white;
+}
+
+/* Adding a little extra padding after the line at the bottom */
+/* Removing extra border line */
+.shared-footer {
+	padding: 5px;
+	border-top: 0px;
+	
+}
+
+/* Adds a line at the top of the page */
+/* and uses the same font type, color and size */
+.dashboard-header h2 {
+	border-bottom: 3px solid teal;
+	color: white;
+	font-family: 'Oswald', 'roboto_condensedlight', sans-serif;
+	font-size: 38px;
+}
+
+/* Add a line at the bottom of the page*/
+.dashboard-body {
+	border-bottom: 3px solid teal;
+}
+
+/* Adjust the padding to tighten the headers up on the panels */
+/* and set the font and color */
+.dashboard-row .dashboard-panel .panel-head h3 {
+ 	font-weight: bold;
+	font-family: 'Oswald','roboto_condensedlight', sans-serif;
+	background-color: black;
+	color: #FFFFFF;
+	padding: 8px 15px 8px 15px;
+	-webkit-border-top-right-radius: 2px;
+	-webkit-border-top-left-radius: 2px;
+	-moz-border-top-right-radius: 2px;
+	-moz-border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	border-top-left-radius: 2px;
+	border-width: inherit;
+	-webkit-border-width: inherit;
+	-moz-border-width: inherit;
+}
+
+
+/* Changed the background to a solid color instead of the default linear-gradient */
+.main-section-body {
+    background: #43434A;
+}
+
+/* Set the background color of all of the nav bars */
+/* Set the color of the hyperlink text in our dashboard to white for easy reading. Add 3-D touch with shadows */
+.header, .app-bar, .nav-pills, .navbar-inner, a.dropdown-toggle {
+    background: black !important;
+	font-family: 'roboto_condensedlight', sans-serif !important;
+    font-size:14px !important;
+    font-weight:900 !important;
+}
+
+/* If the app logo (appLogo.png or appLogoWhite.png) does not exist the text will be the correct size and color */
+div.app-name {
+        color:white !important;
+        text-shadow: -1px 0px black, 0px 1px black, 1px 0px black, 0px -1px black;
+        font-size:26px !important;
+}
+
+/* Hide the drilldown "Details" box when it is unpopulated
+#field3 {
+        display: none;
+}*/
+
+
+label, p.description {
+	color: white !important;
+}
+
+.dashboard-header p.description {
+    margin: 5px 200px 0 0;
+}
+
+.btn-primary, button.btn.btn-primary.submit, input.searchButton {
+	background-color:#eee !important;
+	border-color:#eee !important;
+	border: 1px solid #eee !important;
+	box-shadow: 0px 1px 0px #eee inset !important;
+	background-image: linear-gradient(to bottom, #eee, #eee);
+	color: black;
+}
+
+.btn-primary:hover, .btn-primary:focus, 
+ input.searchButton:hover {
+	background-color:#999999 !important;
+	border-color:#999999 !important;
+	border: 1px solid #999999 !important;
+	background-image: linear-gradient(to bottom, #999999, #999999);
+}
+

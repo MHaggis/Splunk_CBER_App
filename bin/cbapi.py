@@ -7,12 +7,27 @@
 import json
 import time
 import requests
+import urllib
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.poolmanager import PoolManager
 
 try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 except:
     pass
+
+
+# Provide the ability to validate a Carbon Black server's SSL certificate without validating the hostname
+# (by default Carbon Black certificates are "issued" as CN=Self-signed Carbon Black Enterprise Server HTTPS Certificate)
+class HostNameIgnoringAdapter(HTTPAdapter):
+    def init_poolmanager(self, connections, maxsize, block=False, **pool_kwargs):
+        self.poolmanager = PoolManager(num_pools=connections,
+                                       maxsize=maxsize,
+                                       block=block,
+                                       assert_hostname=False, **pool_kwargs)
+
 
 class CbApi(object):
     """ Python bindings for Carbon Black API
@@ -26,8 +41,9 @@ class CbApi(object):
         proc_detail = cb.process(proc['id'])
         print proc_detail['process']['start'], proc_detail['process']['hostname'], proc_detail['process']['path']
     """
+
     def __init__(self, server, ssl_verify=True, token=None, ignore_system_proxy=False,
-                 use_https_proxy=None, use_http_proxy=None):
+                 use_https_proxy=None, ssl_verify_hostname=True, use_http_proxy=None):
         """ Requires:
                 server -    URL to the Carbon Black server.  Usually the same as
                             the web GUI.
@@ -47,8 +63,11 @@ class CbApi(object):
         self.token_header = {'X-Auth-Token': self.token}
         self.session = requests.Session()
 
+        if not ssl_verify_hostname:
+            self.session.mount("https://", HostNameIgnoringAdapter())
+
         self.proxies = {}
-        if ignore_system_proxy:         # see https://github.com/kennethreitz/requests/issues/879
+        if ignore_system_proxy:  # see https://github.com/kennethreitz/requests/issues/879
             self.proxies = {
                 'no': 'pass'
             }
@@ -188,7 +207,7 @@ class CbApi(object):
         """ download a "report" package describing the process
             the format of this report is subject to change"""
         r = self.cbapi_get("%s/api/v1/process/%s/%s/report" % (self.server, id, segment))
-        r.raise_for_status() 
+        r.raise_for_status()
         return r.content
 
     def binary_search(self, query_string, start=0, rows=10, sort="server_added_timestamp desc", facet_enable=True):
@@ -295,22 +314,23 @@ class CbApi(object):
 
         # set up a mapping of types to REST endpoints
         #
-        mapping = {\
-                    'WindowsEXE': '/api/v1/group/%s/installer/windows/exe' % (group_id,),\
-                    'WindowsMSI': '/api/v1/group/%s/installer/windows/msi' % (group_id,),\
-                    'OSX':        '/api/v1/group/%s/installer/osx' % (group_id,),\
-                    'Linux':      '/api/v1/group/%s/installer/linux' % (group_id,),\
-                  }
+        mapping = { \
+            'WindowsEXE': '/api/v1/group/%s/installer/windows/exe' % (group_id,), \
+            'WindowsMSI': '/api/v1/group/%s/installer/windows/msi' % (group_id,), \
+            'OSX': '/api/v1/group/%s/installer/osx' % (group_id,), \
+            'Linux': '/api/v1/group/%s/installer/linux' % (group_id,), \
+            }
 
         # verify that the type parameter is a known value
         #
         if not mapping.has_key(type):
-            raise ValueError("Unrecognized type '%s'; should be one of 'WindowsEXE', 'WindowsMSI', 'OSX', or 'Linux'" % (type,))
+            raise ValueError(
+                "Unrecognized type '%s'; should be one of 'WindowsEXE', 'WindowsMSI', 'OSX', or 'Linux'" % (type,))
 
         # build the fully-qualified URL
         #
         url = "%s%s" % (self.server, mapping[type])
-        
+
         r = self.cbapi_get(url)
         r.raise_for_status()
 
@@ -353,20 +373,45 @@ class CbApi(object):
             if "events" != type and "modules" != type:
                 raise ValueError("type must be one of events or modules")
 
-            # ensure that the query begins with q=
-            if not "q=" in search_query:
-                raise ValueError("watchlist queries must be of the form: cb.urlver=1&q=<query>")
+            # To maintain backwards compatibility, we must not urlencode queries that were submitted using the
+            # "old" interface. The "old" interface was determined by searching for "q=" anywhere in the search_query
+            # so we will retain that here. We are changing that condition slightly here and instead assuming that
+            # either "q=" or "cb.urlver=" is the first parameter in a "preformatted" search_query.
 
-            # ensure that a cb url version is included
-            if "cb.urlver" not in search_query:
+            # Therefore there are two ways that someone could format search_query:
+            # 1. Copy the query from an existing watchlist/URL exactly, which should be passed in to the API
+            #    unchanged. This is equivalent to the "old" interface and will be referred to as a "preformatted"
+            #    search_query. "preformatted" queries do not require url encoding.
+            # 2. Copy the query from the query text box of the Web UI/API. In this case, the query must be url encoded
+            #    then placed into a query string under the "q" key. Additionally, the cb.urlver key should be set
+            #    to "1".
+
+            encode_query = True
+
+            # be backwards compatible with people still submitting
+            # queries with q= at the beginning and just add cb.urlver=1&
+            # This handles the "preformatted" case.
+            if search_query.startswith("q=") and "cb.urlver" not in search_query:
                 search_query = "cb.urlver=1&" + search_query
+                encode_query = False
+            # ensure that it starts with the proper url parameters
+            elif search_query.startswith("cb.urlver=1&q="):
+                encode_query = False
+
+            # urlencode the query if necessary
+            if encode_query:
+                search_query = urllib.urlencode({
+                    "q": search_query,
+                })
+                # change all "+" to "%20" (percent-encoding)
+                search_query = search_query.replace("+", "%20")
+                # ensure that "cb.urlver=1" is the first parameter
+                search_query = "cb.urlver=1&{}".format(search_query)
 
             # ensure that the query itself is properly encoded
+            # This is now strengthened to enforce url encoding on all parameters
             for kvpair in search_query.split('&'):
-                print kvpair
                 if len(kvpair.split('=')) != 2:
-                    continue
-                if kvpair.split('=')[0] != 'q':
                     continue
 
                 # the query itself must be percent-encoded
@@ -374,17 +419,18 @@ class CbApi(object):
                 # no logic to detect unescaped '%' characters
                 for c in kvpair.split('=')[1]:
                     if c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~%":
-                        raise ValueError("Unescaped non-reserved character '%s' found in query; use percent-encoding" % c)
+                        raise ValueError("Unescaped non-reserved character '%s' found in query; use percent-encoding"
+                                         % c)
 
-        request = {\
-                      'index_type': type,\
-                      'name': name,\
-                      'search_query': search_query,\
-                      'readonly': readonly\
-                  }
+        request = {
+            'index_type': type,
+            'name': name,
+            'search_query': search_query,
+            'readonly': readonly
+        }
 
         if id is not None:
-          request['id'] = id
+            request['id'] = id
 
         url = "%s/api/v1/watchlist" % (self.server,)
 
@@ -400,7 +446,7 @@ class CbApi(object):
         request = {'id': id}
 
         url = "%s/api/v1/watchlist/%s" % (self.server, id)
-        
+
         r = self.cbapi_delete(url, data=json.dumps(request))
         r.raise_for_status()
 
@@ -411,7 +457,10 @@ class CbApi(object):
         updates a watchlist
         """
         url = "%s/api/v1/watchlist/%s" % (self.server, id)
-
+        watchlist['search_query'] = urllib.quote(watchlist['search_query'])
+        # ensure that it starts with the proper url parameters
+        if not watchlist['search_query'].startswith("cb.urlver=1&q="):
+            watchlist['search_query'] = "cb.urlver=1&q=" + watchlist['search_query']
         r = self.cbapi_put(url, data=json.dumps(watchlist))
         r.raise_for_status()
 
@@ -423,11 +472,11 @@ class CbApi(object):
         add a new feed to the Carbon Black server, as specified by URL
         """
         request = {
-                      'use_proxy': use_proxy,
-                      'validate_server_cert': validate_server_cert,
-                      'feed_url': feed_url,
-                      'enabled': enabled,
-                  }
+            'use_proxy': use_proxy,
+            'validate_server_cert': validate_server_cert,
+            'feed_url': feed_url,
+            'enabled': enabled,
+        }
 
         if feed_username:
             request['username'] = feed_username
@@ -440,13 +489,14 @@ class CbApi(object):
             request['ssl_client_key'] = ssl_client_key
 
         url = "%s/api/v1/feed" % (self.server,)
-        
+
         r = self.cbapi_post(url, data=json.dumps(request))
         r.raise_for_status()
 
         return r.json()
 
-    def user_add_from_data(self, username, first_name, last_name, password, confirm_password, global_admin, teams, email):
+    def user_add_from_data(self, username, first_name, last_name, password, confirm_password, global_admin, teams,
+                           email):
         """
         add a new user to the server
         """
@@ -461,8 +511,8 @@ class CbApi(object):
             'email': email,
         }
         url = "%s/api/user" % (self.server,)
-       
-        r = self.cbapi_post(url, data = json.dumps(request))
+
+        r = self.cbapi_post(url, data=json.dumps(request))
         r.raise_for_status()
 
         return r.json()
@@ -523,7 +573,7 @@ class CbApi(object):
         """
 
         url = "%s/api/teams" % (self.server,)
-        
+
         r = self.cbapi_get(url)
         r.raise_for_status()
 
@@ -540,8 +590,8 @@ class CbApi(object):
         """
         feeds = self.feed_enum()
         for feed in feeds:
-          if str(feed['id']) == str(id):
-              return feed
+            if str(feed['id']) == str(id):
+                return feed
 
     def user_info(self, username):
         """
@@ -551,8 +601,8 @@ class CbApi(object):
         """
         users = self.user_enum()
         for user in users:
-          if user['username'] == username:
-              return user
+            if user['username'] == username:
+                return user
 
     def team_get_id_by_name(self, name):
         """
@@ -582,15 +632,17 @@ class CbApi(object):
         """
 
         url = "%s/api/useractivity" % (self.server,)
-    
+
         r = self.cbapi_get(url)
         r.raise_for_status()
 
         useractivity = r.json()
 
-        print "%-12s| %-14s | %-12s | %-5s | %-20s" %("Username", "Timestamp", "Remote Ip", "Result", "Description")
+        print "%-12s| %-14s | %-12s | %-5s | %-20s" % ("Username", "Timestamp", "Remote Ip", "Result", "Description")
         for attempt in useractivity:
-            print "%-12s| %-14s | %-12s | %-5s | %-20s" % (attempt['username'], attempt['timestamp'], attempt['ip_address'], attempt['http_status'], attempt['http_description'])
+            print "%-12s| %-14s | %-12s | %-5s | %-20s" % (
+            attempt['username'], attempt['timestamp'], attempt['ip_address'], attempt['http_status'],
+            attempt['http_description'])
 
     def output_user_activity_success(self):
         """
@@ -598,7 +650,7 @@ class CbApi(object):
         """
 
         url = "%s/api/useractivity" % (self.server,)
-        
+
         r = self.cbapi_get(url)
         r.raise_for_status()
 
@@ -609,9 +661,11 @@ class CbApi(object):
             if attempt['http_status'] == 200:
                 successes.append(attempt)
 
-        print "%-12s| %-14s | %-12s | %-5s | %-20s" %("Username", "Timestamp", "Remote Ip", "Result", "Description")
+        print "%-12s| %-14s | %-12s | %-5s | %-20s" % ("Username", "Timestamp", "Remote Ip", "Result", "Description")
         for attempt in successes:
-            print "%-12s| %-14s | %-12s | %-5s | %-20s" % (attempt['username'], attempt['timestamp'], attempt['ip_address'], attempt['http_status'], attempt['http_description'])
+            print "%-12s| %-14s | %-12s | %-5s | %-20s" % (
+            attempt['username'], attempt['timestamp'], attempt['ip_address'], attempt['http_status'],
+            attempt['http_description'])
 
     def output_user_activity_failure(self):
         """
@@ -619,7 +673,7 @@ class CbApi(object):
         """
 
         url = "%s/api/useractivity" % (self.server,)
-        
+
         r = self.cbapi_get(url)
         r.raise_for_status()
 
@@ -630,9 +684,11 @@ class CbApi(object):
             if attempt['http_status'] == 403:
                 failures.append(attempt)
 
-        print "%-12s| %-14s | %-12s | %-5s | %-20s" %("Username", "Timestamp", "Remote Ip", "Result", "Description")
+        print "%-12s| %-14s | %-12s | %-5s | %-20s" % ("Username", "Timestamp", "Remote Ip", "Result", "Description")
         for attempt in failures:
-            print "%-12s| %-14s | %-12s | %-5s | %-20s" % (attempt['username'], attempt['timestamp'], attempt['ip_address'], attempt['http_status'], attempt['http_description'])
+            print "%-12s| %-14s | %-12s | %-5s | %-20s" % (
+            attempt['username'], attempt['timestamp'], attempt['ip_address'], attempt['http_status'],
+            attempt['http_description'])
 
     def feed_del(self, id):
         """
@@ -645,11 +701,10 @@ class CbApi(object):
 
         return r.json()
 
-    def user_del(self,username):
-
+    def user_del(self, username):
 
         url = "%s/api/user/%s" % (self.server, username)
-        
+
         r = self.cbapi_delete(url)
         r.raise_for_status()
 
@@ -758,7 +813,7 @@ class CbApi(object):
 
         return r.json()
 
-    def feed_action_enum(self,id):
+    def feed_action_enum(self, id):
         """
         Gets the actions for a certain feed from the Carbon Black Server
         :param id: the id of the feed
@@ -784,9 +839,10 @@ class CbApi(object):
         url = "%s/api/v1/feed/%s/action" % (self.server, id)
 
         request = {
-            "action_data": "{\"email_recipients\":[%s]}" % (",".join(str(user_id) for user_id in email_recipient_user_ids)),
+            "action_data": "{\"email_recipients\":[%s]}" % (
+            ",".join(str(user_id) for user_id in email_recipient_user_ids)),
             "action_type": action_type_id,
-            "group_id": id, #feed id
+            "group_id": id,  # feed id
             "watchlist_id": None
         }
 
@@ -794,7 +850,7 @@ class CbApi(object):
         r.raise_for_status()
         return r.json()
 
-    def feed_action_update(self, id , action_id, action_type_id):
+    def feed_action_update(self, id, action_id, action_type_id):
         """
         updates a feed action
         :param id: the feed id
@@ -813,7 +869,7 @@ class CbApi(object):
             "action_data": curr_action['action_data'],
             "action_type": action_type_id,
             "group_id": curr_action['group_id'],
-            "id" : curr_action['id'],
+            "id": curr_action['id'],
             "watchlist_id": curr_action['watchlist_id']
         }
 
@@ -828,7 +884,7 @@ class CbApi(object):
         :param action_id: the id of the action
         :return: whether successful or not
         """
-        url =  "%s/api/v1/feed/%s/action/%s" % (self.server, id, action_id)
+        url = "%s/api/v1/feed/%s/action/%s" % (self.server, id, action_id)
         r = self.cbapi_delete(url)
         r.raise_for_status()
 
@@ -847,7 +903,7 @@ class CbApi(object):
         return r.json()
 
     def alert_search(self, query_string, sort="created_time desc", rows=10, start=0, facet_enable=True):
-        """ Search for processes.  Arguments: 
+        """ Search for processes.  Arguments:
 
             query_string -      The Alert query string; this is the same string used in the
                                 "main search box" on the alert search page.  "Contains text..."
@@ -954,7 +1010,6 @@ class CbApi(object):
             events = self.process_events(proc['id'], proc['segment_id']).get('process', [])
             yield (proc, events)
 
-
     # class ActionType:
     #     Email=0
     #     Syslog=1
@@ -1017,7 +1072,7 @@ class CbApi(object):
     def live_response_session_command_get(self, session_id, command_id, wait=False):
         url = "%s/api/v1/cblr/session/%d/command/%d" % (self.server, session_id, command_id)
         if wait:
-            params = {'wait':'true'}
+            params = {'wait': 'true'}
         else:
             params = {}
         r = self.cbapi_get(url, params=params, timeout=120)
@@ -1029,7 +1084,6 @@ class CbApi(object):
         r = self.cbapi_get(url, params={}, timeout=120)
         r.raise_for_status()
         return r.content
-
 
     def live_response_session_command_put_file(self, session_id, filepath):
         fin = open(filepath, "rb")
@@ -1045,7 +1099,6 @@ class CbApi(object):
         ret = json.loads(r.content)
         fileid = ret["id"]
         return fileid
-
 
     def live_response_session_keep_alive(self, session_id):
         url = '%s/api/v1/cblr/session/%d/keepalive' % (self.server, session_id)
@@ -1070,7 +1123,7 @@ class CbApi(object):
 
     def sensor_flush(self, sensor_id, flush_time):
         data = self.sensor(sensor_id)
-        data["event_log_flush_time"] = flush_time #"Wed, 01 Jan 2020 00:00:00 GMT"
+        data["event_log_flush_time"] = flush_time  # "Wed, 01 Jan 2020 00:00:00 GMT"
 
         r = self.cbapi_put("%s/api/v1/sensor/%s" % (self.server, sensor_id),
                            data=json.dumps(data), timeout=120)
@@ -1128,22 +1181,22 @@ class CbApi(object):
         :return: the updated event
         """
 
-        #be able to target a single event
+        # be able to target a single event
         old_event_as_list = self.event_info(id)
         old_event = old_event_as_list[0]
         old_event_data = old_event['event_data']
-        new_event_data = {\
-            'description' : new_description,\
+        new_event_data = { \
+            'description': new_description, \
             }
 
-        request = {\
-
-           'start_date' : old_event['start_date'],\
-           'event_data' : {\
-                            # set every other event_data field to the old_event value
-                            'description' : new_description
-                          },\
-                  }
+        request = { \
+ \
+            'start_date': old_event['start_date'], \
+            'event_data': { \
+                # set every other event_data field to the old_event value
+                'description': new_description
+            }, \
+            }
 
         url = "%s/api/tagged_event/%s" % (self.server, id)
 
@@ -1164,7 +1217,6 @@ class CbApi(object):
         r.raise_for_status()
 
         return r.json()
-
 
     def event_by_process_id(self, proc_id):
         """
@@ -1251,7 +1303,7 @@ class CbApi(object):
         :param config_id: id of specific datasharing configuration
         :return: the datasharing info for one configuration of a group
         """
-        url = "%s/api/v1/group/%s/datasharing/%s" % (self.server,group_id,config_id)
+        url = "%s/api/v1/group/%s/datasharing/%s" % (self.server, group_id, config_id)
         r = self.cbapi_get(url)
         r.raise_for_status()
 
@@ -1265,7 +1317,7 @@ class CbApi(object):
         :param config_id: id of specific datasharing configuration
         :return: the deleted configuration
         """
-        url = "%s/api/v1/group/%s/datasharing/%s" % (self.server,group_id,config_id)
+        url = "%s/api/v1/group/%s/datasharing/%s" % (self.server, group_id, config_id)
         r = self.cbapi_delete(url)
         r.raise_for_status()
 

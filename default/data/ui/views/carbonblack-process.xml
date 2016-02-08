@@ -1,0 +1,49 @@
+<form>
+  <label>Process Search</label>
+  <searchTemplate>| processsearch "$process_search$"</searchTemplate>
+  <description>Enter a Carbon Black Query Ex: </description>
+  <!-- Add time range picker -->
+  <fieldset autoRun="True" submitButton="true">
+    <!-- Add Wildcard Filter -->
+    <input type="text" token="process_search" searchWhenChanged="true">
+      <label>Query</label>
+      <default>$url:UrlHash$</default>
+      <suffix></suffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Endpoint Data</title>
+        <search base="global">
+          <query></query>
+        </search>
+        <option name="linkView">search</option>
+        <option name="drilldown">cell</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Example of a search post-process</title>
+        <search base="global">
+          <query>| eval "Endpoint Rename"=(endpoint)</query>
+        </search>
+        <option name="linkView">search</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="list.drilldown">full</option>
+        <option name="list.wrap">1</option>
+        <option name="maxLines">5</option>
+        <option name="raw.drilldown">full</option>
+        <option name="table.drilldown">all</option>
+        <option name="table.wrap">1</option>
+        <option name="type">list</option>
+        <option name="drilldown">cell</option>
+      </table>
+    </panel>
+  </row>
+</form>
