@@ -7,15 +7,18 @@ from ConfigParser import RawConfigParser
 import os
 import sys
 from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration, Option
+import time
+import dateutil.parser
 
 
 @Configuration()
 class ProcessSearchCommand(GeneratingCommand):
     """Generates a process search result from Carbon Black from a given IP or search query
-        | processsearch ${ip}
+        | processsearch query=${ip}
     """
 
     query = Option(name="query", require=True)
+
 
     field_names = ['childproc_count',
                    'cmdline',
@@ -58,7 +61,13 @@ class ProcessSearchCommand(GeneratingCommand):
 
     def generate(self):
         for bindata in self.cb.process_search_iter(self.query):
-            yield dict((field_name, bindata[field_name]) for field_name in self.field_names)
+            self.logger.info("bindata %s" % bindata)
+            temp = dict((field_name, bindata[field_name]) for field_name in self.field_names)
+            temp['sourcetype'] = 'bit9:carbonblack:json'
+            temp['_time'] = int(time.mktime(dateutil.parser.parse(bindata["start"]).timetuple()))
+            temp['host'] = 'cbserver'
+            temp['source'] = 'cbapi'
+            yield temp
 
 if __name__ == '__main__':
     dispatch(ProcessSearchCommand, sys.argv, sys.stdin, sys.stdout, __name__)
