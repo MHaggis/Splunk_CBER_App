@@ -1,6 +1,6 @@
 <form>
   <label>Process Search</label>
-  <searchTemplate>| processsearch "$process_search$"</searchTemplate>
+  <searchTemplate>| processsearch query="$process_search$"</searchTemplate>
   <description>Enter a Carbon Black Query Ex: </description>
   <!-- Add time range picker -->
   <fieldset autoRun="True" submitButton="true">
