@@ -1,6 +1,6 @@
 <form>
   <label>Binary Search</label>
-  <searchTemplate>| binarysearch "$binary_search$"</searchTemplate>
+  <searchTemplate>| binarysearch query="$binary_search$"</searchTemplate>
   <description>Enter an MD5 to search Ex: fd3cee0bbc4e55838e65911ff19ef6f5</description>
   <!-- Add time range picker -->
   <fieldset autoRun="True" submitButton="true">
@@ -23,26 +23,6 @@
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
-      </table>
-    </panel>
-    <panel>
-      <table>
-        <title>Example of a search post-process</title>
-        <search base="global">
-          <query>| eval "Endpoint Rename"=(endpoint)</query>
-        </search>
-        <option name="linkView">search</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="list.drilldown">full</option>
-        <option name="list.wrap">1</option>
-        <option name="maxLines">5</option>
-        <option name="raw.drilldown">full</option>
-        <option name="table.drilldown">all</option>
-        <option name="table.wrap">1</option>
-        <option name="type">list</option>
-        <option name="drilldown">cell</option>
       </table>
     </panel>
   </row>
