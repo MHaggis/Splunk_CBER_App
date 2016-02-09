@@ -19,20 +19,12 @@ class ProcessSearchCommand(GeneratingCommand):
 
     query = Option(name="query", require=True)
 
-
-    field_names = ['childproc_count',
-                   'cmdline',
+    field_names = ['cmdline',
                    'comms_ip',
-                   'crossproc_count',
-                   'filemod_count',
-                   'group',
-                   'host_type',
                    'hostname',
                    'id',
                    'interface_ip',
                    'last_update',
-                   'modload_count',
-                   'netconn_count',
                    'os_type',
                    'parent_md5',
                    'parent_name',
@@ -47,7 +39,14 @@ class ProcessSearchCommand(GeneratingCommand):
                    'sensor_id',
                    'start',
                    'unique_id',
-                   'username']
+                   'username',
+                   'childproc_count',
+                   'crossproc_count',
+                   'modload_count',
+                   'netconn_count',
+                   'filemod_count',
+                   'group',
+                   'host_type']
 
     def prepare(self):
         config_data = RawConfigParser()
@@ -60,8 +59,8 @@ class ProcessSearchCommand(GeneratingCommand):
         self.cb = CbApi(cb_server, token=token, ssl_verify=False)
 
     def generate(self):
+        self.logger.info("query %s" % self.query)
         for bindata in self.cb.process_search_iter(self.query):
-            self.logger.info("bindata %s" % bindata)
             temp = dict((field_name, bindata[field_name]) for field_name in self.field_names)
             temp['sourcetype'] = 'bit9:carbonblack:json'
             temp['_time'] = int(time.mktime(dateutil.parser.parse(bindata["start"]).timetuple()))
