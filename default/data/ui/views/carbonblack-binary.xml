@@ -13,7 +13,7 @@
   </fieldset>
   <row>
     <panel>
-      <table>
+      <events>
         <title>Endpoint Data</title>
         <search base="global">
           <query></query>
@@ -23,7 +23,7 @@
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
-      </table>
+      </events>
     </panel>
   </row>
 </form>
