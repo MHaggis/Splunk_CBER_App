@@ -9,6 +9,7 @@ import sys
 from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration, Option
 import time
 import dateutil.parser
+import json
 
 
 @Configuration()
@@ -53,19 +54,29 @@ class ProcessSearchCommand(GeneratingCommand):
         my_path = os.path.dirname(os.path.abspath(__file__))
         config_data.read(os.path.join(my_path, "config.ini"))
 
-        cb_server = config_data.get('cb_server', 'url')
-        token = config_data.get('cb_server', 'token')
+        self.cb_server = config_data.get('cb_server', 'url')
+        self.token = config_data.get('cb_server', 'token')
 
-        self.cb = CbApi(cb_server, token=token, ssl_verify=False)
+        self.cb = CbApi(self.cb_server, token=self.token, ssl_verify=False)
 
     def generate(self):
         self.logger.info("query %s" % self.query)
         for bindata in self.cb.process_search_iter(self.query):
             temp = dict((field_name, bindata[field_name]) for field_name in self.field_names)
             temp['sourcetype'] = 'bit9:carbonblack:json'
-            temp['_time'] = int(time.mktime(dateutil.parser.parse(bindata["start"]).timetuple()))
-            temp['host'] = 'cbserver'
+
+            #
+            # Sometimes we have seen 'start' be equal to -1
+            #
+            try:
+                temp['_time'] = int(time.mktime(dateutil.parser.parse(bindata['start']).timetuple()))
+            except Exception as e:
+                self.logger.exception('parsing bindata["start"] %s' % bindata['start'])
+                temp['_time'] = 0
+
+            temp['host'] = self.cb_server + '/#/analyze/' + bindata['id'] + "/1"
             temp['source'] = 'cbapi'
+            temp['_raw'] = json.dumps(temp)
             yield temp
 
 if __name__ == '__main__':

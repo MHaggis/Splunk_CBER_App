@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <nav color="#43434A">
  
-  <collection label="Carbon Black Enterprise Reponse">
+  <collection label="Carbon Black Enterprise Response">
     <view name="carbonblack-binary" default='false' />
     <view name="carbonblack-process" default='true' />
   </collection>

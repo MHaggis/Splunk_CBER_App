@@ -1,7 +1,7 @@
 <form>
   <label>Process Search</label>
   <searchTemplate>| processsearch query="$process_search$"</searchTemplate>
-  <description>Enter a Carbon Black Query Ex: </description>
+  <description>Enter a Carbon Black Query</description>
   <!-- Add time range picker -->
   <fieldset autoRun="True" submitButton="true">
     <!-- Add Wildcard Filter -->
@@ -13,8 +13,8 @@
   </fieldset>
   <row>
     <panel>
-      <events>
-        <title>Endpoint Data</title>
+      <event>
+        <title>Results</title>
         <search base="global">
           <query></query>
         </search>
@@ -23,7 +23,7 @@
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
-      </events>
+      </event>
     </panel>
   </row>
 </form>
