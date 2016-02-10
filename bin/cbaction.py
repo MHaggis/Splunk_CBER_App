@@ -45,6 +45,8 @@ class KillProcessAction(Action):
             self.logger.error("Could not parse sensor_id out of process_id: %s" % process_id)
             return
 
+        self.logger.info("killing process_id: %s" % process_id)
+        print "killing process_id: %s" % process_id
         k = LiveResponseThread(self.cb, self.logger, sensor_id)
         k.establish_session()
         return k.kill_processes([process_id])

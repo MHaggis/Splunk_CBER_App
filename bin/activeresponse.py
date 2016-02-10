@@ -5,6 +5,7 @@ from cbapi import CbApi
 import json
 import requests
 import logging
+logging.basicConfig()
 import os
 import six
 
