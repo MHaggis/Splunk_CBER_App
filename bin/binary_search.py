@@ -32,7 +32,7 @@ class BinarySearchCommand(GeneratingCommand):
     def generate(self):
         for bindata in self.cb.binary_search_iter(self.query):
             self.logger.info("yielding binary %s" % bindata["md5"])
-            yield dict((field_name, bindata[field_name]) for field_name in self.field_names)
+            yield dict((field_name, bindata.get(field_name, "")) for field_name in self.field_names)
 
 
 if __name__ == '__main__':

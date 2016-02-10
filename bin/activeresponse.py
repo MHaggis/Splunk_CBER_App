@@ -14,7 +14,7 @@ class PrerequisiteFailedError(Exception):
 
 
 class Device(object):
-    path = "dummy.log"
+    path = "carbonblack.endpoint"
 
     def __init__(self, hosts_mapping):
         #
