@@ -1,15 +1,12 @@
-#
-# TODO:
-# Ask Kyle how dependencies are handled
-#
 from __future__ import absolute_import
 from ConfigParser import RawConfigParser
-from cbaction import FlushAction, IsolateAction
+from cbaction import FlushAction, IsolateAction, KillProcessAction
 from cbapi import CbApi
 import json
 import requests
 import logging
 import os
+import six
 
 
 class PrerequisiteFailedError(Exception):
@@ -83,14 +80,35 @@ class Device(object):
 
     def pre_action(self, action_type, data):
         if action_type in ['isolate', 'flush']:
-            src_ip = data[0].get('src_ip', None)
+            src_ip = data.get('src_ip', None) or data.get('local_ip', None)
             if not src_ip:
                 raise PrerequisiteFailedError("No source IP address provided")
-            sensor_id = self.get_sensor_id_from_ip(data[0].get('src_ip'))
+            sensor_id = self.get_sensor_id_from_ip(src_ip)
             if not sensor_id:
                 raise PrerequisiteFailedError("Cannot find sensor associated with source IP address %s" % src_ip)
 
             return sensor_id
+        elif action_type in ['killproc']:
+            proc_id = data.get('process_guid', None)
+            if not proc_id:
+                raise PrerequisiteFailedError("No Process GUID provided")
+            if not isinstance(proc_id, six.string_types):
+                raise PrerequisiteFailedError("Process GUID not valid: must be a string")
+            if len(proc_id.split("-")) < 5:
+                raise PrerequisiteFailedError("Process GUID not valid: must be a GUID")
+            return proc_id
+        elif action_type in ['banhash']:
+            #
+            # Pull out md5 from 'data'
+            #
+            md5 = data.get('md5', None)
+            if not md5:
+                #
+                # Error out if we can't
+                #
+                raise PrerequisiteFailedError("Error: Unable to get an MD5 hash from parameters")
+            return md5
+
         return None
 
     def submit_action(self, settings, data):
@@ -123,6 +141,10 @@ class Device(object):
         isolator = IsolateAction(self.cb, self.logger)
         isolator.action(sensor_id)
 
+    def kill_action(self, process_id):
+        killer = KillProcessAction(self.cb, self.logger)
+        killer.action(process_id)
+
     def run_action(self, settings, data):
         """
         This gets called when the user clicks the validate button
@@ -133,33 +155,15 @@ class Device(object):
         action_type = settings.get('action_type', '')
         # get sensor ID if required
         try:
-            sensor_id = self.pre_action(action_type, data)
+            action_argument = self.pre_action(action_type, data)
         except PrerequisiteFailedError as e:
             self.logger.error(e.message)
         else:
             if action_type == 'banhash':
-                #
-                # Pull out md5 from 'data'
-                #
-                md5 = data.get('md5', None)
-                if not md5:
-                    #
-                    # Error out if we can't
-                    #
-                    self.logger.error("Error: Unable to get an MD5 hash from parameters")
-                    return
-                #
-                # Ban the hash
-                #
-                self.ban_hash(md5)
-                pass
+                self.ban_hash(action_argument)
             elif action_type == 'isolate':
-                self.isolate_action(sensor_id)
+                self.isolate_action(action_argument)
             elif action_type == 'flush':
-                self.flush_action(sensor_id)
-            elif action_type == 'liveresponse':
-                #
-                # Run live response script against the endpoint
-                # TODO: how can we report results back to Splunk?
-                #
-                pass
+                self.flush_action(action_argument)
+            elif action_type == 'killproc':
+                self.kill_action(action_argument)

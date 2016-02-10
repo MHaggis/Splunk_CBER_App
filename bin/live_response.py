@@ -67,7 +67,7 @@ class LiveResponseThread(threading.Thread):
 
         return killed
 
-    def _kill_processes(self, target_proc_guids):
+    def kill_processes(self, target_proc_guids):
         session_id = self.live_response_session
         killed = []
 

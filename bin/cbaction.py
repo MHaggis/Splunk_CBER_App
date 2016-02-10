@@ -34,6 +34,22 @@ class IsolateAction(Action):
         return 'Isolate affected sensor'
 
 
+class KillProcessAction(Action):
+    def __init__(self, cb, logger):
+        Action.__init__(self, cb, logger)
+
+    def action(self, process_id):
+        try:
+            sensor_id = int(process_id.split('-')[0])
+        except Exception:
+            self.logger.error("Could not parse sensor_id out of process_id: %s" % process_id)
+            return
+
+        k = LiveResponseThread(self.cb, self.logger, sensor_id)
+        k.establish_session()
+        return k.kill_processes([process_id])
+
+
 class RunLiveResponseScript(LiveResponseThread):
     def run(self):
         self.success = False
