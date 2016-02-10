@@ -46,10 +46,19 @@ class KillProcessAction(Action):
             return
 
         self.logger.info("killing process_id: %s" % process_id)
-        print "killing process_id: %s" % process_id
-        k = LiveResponseThread(self.cb, self.logger, sensor_id)
-        k.establish_session()
-        return k.kill_processes([process_id])
+        k = KillProcessThread(self.cb, self.logger, sensor_id, process_id)
+        k.start()
+
+
+class KillProcessThread(LiveResponseThread):
+    def __init__(self, cb, logger, sensor_id, process_id):
+        super(KillProcessThread, self).__init__(cb, logger, sensor_id)
+        self.process_id = process_id
+        self.daemon = True
+
+    def run(self):
+        self.establish_session()
+        self.kill_processes([self.process_id])
 
 
 class RunLiveResponseScript(LiveResponseThread):
