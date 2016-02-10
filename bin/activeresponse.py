@@ -5,9 +5,11 @@ from cbapi import CbApi
 import json
 import requests
 import logging
-logging.basicConfig()
 import os
 import six
+
+
+logging.basicConfig()
 
 
 class PrerequisiteFailedError(Exception):
@@ -32,6 +34,7 @@ class Device(object):
         self.cb = CbApi(self.cb_server, token=self.token, ssl_verify=False)
 
         self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
 
         self.hosts_mapping = hosts_mapping
 
