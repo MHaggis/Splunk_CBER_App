@@ -81,7 +81,7 @@ class ProcessSearchCommand(GeneratingCommand):
                 self.logger.exception('parsing bindata["start"] %s' % bindata['start'])
                 temp['_time'] = 0
 
-            temp['host'] = self.cb_server + '/#/analyze/' + bindata['id'] + "/1"
+            temp['link_process'] = self.cb_server + '/#/analyze/' + bindata['id'] + "/1"
             temp['source'] = 'cbapi'
             temp['_raw'] = json.dumps(temp)
             yield temp
