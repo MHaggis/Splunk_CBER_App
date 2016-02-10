@@ -61,7 +61,14 @@ class ProcessSearchCommand(GeneratingCommand):
 
     def generate(self):
         self.logger.info("query %s" % self.query)
+        i = 0
         for bindata in self.cb.process_search_iter(self.query):
+            i += 1
+            if i > 1000:
+                # TODO: let's stop at 1,000 results for now?
+                self.finish()
+                return
+
             temp = dict((field_name, bindata[field_name]) for field_name in self.field_names)
             temp['sourcetype'] = 'bit9:carbonblack:json'
 
@@ -78,6 +85,9 @@ class ProcessSearchCommand(GeneratingCommand):
             temp['source'] = 'cbapi'
             temp['_raw'] = json.dumps(temp)
             yield temp
+
+            if i % 10 == 0:
+                self.flush()
 
 if __name__ == '__main__':
     dispatch(ProcessSearchCommand, sys.argv, sys.stdin, sys.stdout, __name__)
