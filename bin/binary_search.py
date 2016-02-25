@@ -7,7 +7,7 @@ from ConfigParser import RawConfigParser
 import os
 import sys
 from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration, Option
-
+import splunk.clilib.cli_common
 
 @Configuration()
 class BinarySearchCommand(GeneratingCommand):
@@ -20,12 +20,10 @@ class BinarySearchCommand(GeneratingCommand):
                    'last_seen', 'original_filename', 'os_type', 'product_name', 'product_version', 'md5']
 
     def prepare(self):
-        config_data = RawConfigParser()
-        my_path = os.path.dirname(os.path.abspath(__file__))
-        config_data.read(os.path.join(my_path, "config.ini"))
+        configuration_dict = splunk.clilib.cli_common.getConfStanza('carbonblack', 'cbserver')
 
-        cb_server = config_data.get('cb_server', 'url')
-        token = config_data.get('cb_server', 'token')
+        cb_server = configuration_dict['cburl']
+        token = configuration_dict['cbapikey']
 
         self.cb = CbApi(cb_server, token=token, ssl_verify=False)
 

@@ -5,9 +5,8 @@ from cbapi import CbApi
 import json
 import requests
 import logging
-import os
 import six
-
+import splunk.clilib.cli_common
 
 logging.basicConfig()
 
@@ -20,16 +19,10 @@ class Device(object):
     path = "carbonblack.endpoint"
 
     def __init__(self, hosts_mapping):
-        #
-        # WARNING/TODO:
-        # be sure to test the current path we get from splunk so we can read the config file
-        #
-        config_data = RawConfigParser()
-        my_path = os.path.dirname(os.path.abspath(__file__))
-        config_data.read(os.path.join(my_path, "config.ini"))
+        configuration_dict = splunk.clilib.cli_common.getConfStanza('carbonblack', 'cbserver')
 
-        self.cb_server = config_data.get('cb_server', 'url')
-        self.token = config_data.get('cb_server', 'token')
+        self.cb_server = configuration_dict['cburl']
+        self.token = configuration_dict['cbapikey']
 
         self.cb = CbApi(self.cb_server, token=self.token, ssl_verify=False)
 

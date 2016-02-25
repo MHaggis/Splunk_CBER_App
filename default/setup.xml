@@ -1,0 +1,17 @@
+<setup>
+  <block title="Configure This CB Connection Info"></block>
+​
+  <block title="Carbon Black Credentials" endpoint="carbonblack/cb_configure" entity="cbserver">
+    <input field="cburl">
+        <label>CB server URL</label>
+        <type>text</type>
+    </input>
+​
+    <input field="cbapikey">
+        <label>API Key</label>
+        <type>text</type>
+    </input>
+  </block>
+​
+​
+</setup>

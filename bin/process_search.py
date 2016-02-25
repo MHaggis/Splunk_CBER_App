@@ -10,6 +10,8 @@ from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration,
 import time
 import dateutil.parser
 import json
+import splunk.clilib.cli_common
+
 
 
 @Configuration()
@@ -50,12 +52,11 @@ class ProcessSearchCommand(GeneratingCommand):
                    'host_type']
 
     def prepare(self):
-        config_data = RawConfigParser()
-        my_path = os.path.dirname(os.path.abspath(__file__))
-        config_data.read(os.path.join(my_path, "config.ini"))
 
-        self.cb_server = config_data.get('cb_server', 'url')
-        self.token = config_data.get('cb_server', 'token')
+        configuration_dict = splunk.clilib.cli_common.getConfStanza('carbonblack', 'cbserver')
+
+        self.cb_server = configuration_dict['cburl']
+        self.token = configuration_dict['cbapikey']
 
         self.cb = CbApi(self.cb_server, token=self.token, ssl_verify=False)
 
