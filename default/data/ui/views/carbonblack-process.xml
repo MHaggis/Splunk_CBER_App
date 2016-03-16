@@ -1,29 +1,29 @@
 <form>
-  <label>Process Search</label>
-  <searchTemplate>| processsearch query="$process_search$"</searchTemplate>
-  <description>Enter a Carbon Black Query</description>
-  <!-- Add time range picker -->
-  <fieldset autoRun="True" submitButton="true">
-    <!-- Add Wildcard Filter -->
-    <input type="text" token="process_search" searchWhenChanged="true">
-      <label>Query</label>
-      <default>$url:UrlHash$</default>
-      <suffix></suffix>
-    </input>
-  </fieldset>
-  <row>
-    <panel>
-      <event>
-        <title>Results</title>
-        <search base="global">
-          <query></query>
-        </search>
-        <option name="linkView">search</option>
-        <option name="drilldown">cell</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-        <option name="dataOverlayMode">none</option>
-      </event>
-    </panel>
-  </row>
+    <label>Process Search</label>
+    <searchTemplate>| processsearch query="$process_search$"</searchTemplate>
+    <description>Enter a Carbon Black Query</description>
+    <!-- Add time range picker -->
+    <fieldset autoRun="True" submitButton="true">
+        <!-- Add Wildcard Filter -->
+        <input type="text" token="process_search" searchWhenChanged="true">
+            <label>Query</label>
+            <default>$url:UrlHash$</default>
+            <suffix></suffix>
+        </input>
+    </fieldset>
+    <row>
+        <panel>
+            <event>
+                <title>Results</title>
+                <search base="global">
+                    <query></query>
+                </search>
+                <option name="linkView">search</option>
+                <option name="drilldown">cell</option>
+                <option name="wrap">true</option>
+                <option name="rowNumbers">false</option>
+                <option name="dataOverlayMode">none</option>
+            </event>
+        </panel>
+    </row>
 </form>

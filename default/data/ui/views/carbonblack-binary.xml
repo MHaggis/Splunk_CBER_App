@@ -1,29 +1,29 @@
 <form>
-  <label>Binary Search</label>
-  <searchTemplate>| binarysearch query="$binary_search$"</searchTemplate>
-  <description>Enter an MD5 to search Ex: fd3cee0bbc4e55838e65911ff19ef6f5</description>
-  <!-- Add time range picker -->
-  <fieldset autoRun="True" submitButton="true">
-    <!-- Add Wildcard Filter -->
-    <input type="text" token="binary_search" searchWhenChanged="true">
-      <label>MD5</label>
-      <default>$url:UrlHash$</default>
-      <suffix></suffix>
-    </input>
-  </fieldset>
-  <row>
-    <panel>
-      <event>
-        <title>Results</title>
-        <search base="global">
-          <query></query>
-        </search>
-        <option name="linkView">search</option>
-        <option name="drilldown">cell</option>
-        <option name="wrap">true</option>
-        <option name="rowNumbers">false</option>
-        <option name="dataOverlayMode">none</option>
-      </event>
-    </panel>
-  </row>
+    <label>Binary Search</label>
+    <searchTemplate>| binarysearch query="$binary_search$"</searchTemplate>
+    <description>Enter an MD5 to search Ex: fd3cee0bbc4e55838e65911ff19ef6f5</description>
+    <!-- Add time range picker -->
+    <fieldset autoRun="True" submitButton="true">
+        <!-- Add Wildcard Filter -->
+        <input type="text" token="binary_search" searchWhenChanged="true">
+            <label>MD5</label>
+            <default>$url:UrlHash$</default>
+            <suffix></suffix>
+        </input>
+    </fieldset>
+    <row>
+        <panel>
+            <event>
+                <title>Results</title>
+                <search base="global">
+                    <query></query>
+                </search>
+                <option name="linkView">search</option>
+                <option name="drilldown">cell</option>
+                <option name="wrap">true</option>
+                <option name="rowNumbers">false</option>
+                <option name="dataOverlayMode">none</option>
+            </event>
+        </panel>
+    </row>
 </form>
