@@ -34,7 +34,7 @@ To setup the Splunk App:
 
 ## Usage
 
-The Carbon Black QRadar Application contains two major components. These components are process/binary search within
+The Carbon Black Splunk Application contains two major components. These components are process/binary search within
 the app and workflow actions that enable pivoting from standardized fields into Carbon Black searches.
 
 ### Process/Binary Searches
@@ -73,7 +73,7 @@ When you contact Carbon Black Support with an issue, please provide the followin
 
 * Your name, company name, telephone number, and e-mail address
 * Product name/version, CB Server version, CB Sensor version
-* QRadar version
+* Splunk version
 * Hardware configuration of the Carbon Black Server or computer (processor, memory, and RAM)
 * For documentation issues, specify the version of the manual you are using.
 * Action causing the problem, error message returned, and event log output (as appropriate)
