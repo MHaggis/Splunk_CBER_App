@@ -63,9 +63,9 @@ Workflow Actions allow users to pivot into Carbon Black searches from standardiz
 | CB Process Search by Domain | domain |
 
 
-## Contacting Bit9 Support
+## Contacting Carbon Black Support
 
-E-mail: support@bit9.com
+E-mail: support@carbonblack.com
 
 ### Reporting Problems
 
