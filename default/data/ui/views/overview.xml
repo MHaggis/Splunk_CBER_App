@@ -30,7 +30,7 @@
         <option name="underLabel">sensors reporting alerts</option>
         <option name="field">count</option>
         <option name="linkFields">result, afterlabel</option>
-        <option name="linkSearch">index=_internal earliest=-h | stats count</option>
+        <option name="linkSearch">| tstats count from datamodel=Carbon_Black.CB_Alerts by CB_Alerts.computer_name,CB_Alerts.feed_name</option>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
         <option name="numberPrecision">0</option>
@@ -101,15 +101,10 @@
         <option name="underLabel">master servers sending data</option>
         <option name="field">count</option>
         <option name="linkFields">result, afterlabel</option>
-        <option name="linkView">charting</option>
+        <option name="linkView">search</option>
         <option name="linkSearch">| tstats count from datamodel=Carbon_Black.CB_Alerts by CB_Alerts.cb_server</option>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
-        <option name="numberPrecision">0</option>
-        <option name="showSparkline">1</option>
-        <option name="showTrendIndicator">1</option>
-        <option name="trendColorInterpretation">standard</option>
-        <option name="trendDisplayMode">absolute</option>
         <option name="useColors">1</option>
         <option name="useThousandSeparators">1</option>
         <option name="drilldown">none</option>
