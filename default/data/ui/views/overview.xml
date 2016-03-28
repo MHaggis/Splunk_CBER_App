@@ -15,7 +15,7 @@
           Carbon Black Enterprise Response
         </h1>
         <p>Overview of daily usage and analytics of your Carbon Black Enterprise Response environment</p>
-        
+
       </html>
   </row>
   <row>
@@ -23,7 +23,7 @@
       <!-- 3 elements are grouped into the left column -->
       <single>
         <search>
-          <query>| savedsearch "CB - Alert Activity" | stats count</query>
+          <query>| savedsearch "CBER - Alert Activity" | stats count</query>
           <earliest>$timeframe.earliest$</earliest>
           <latest>$timeframe.latest$</latest>
         </search>
@@ -55,7 +55,7 @@
         <option name="underLabel">alerts triggered</option>
         <option name="field">count</option>
         <option name="linkFields">result, afterlabel</option>
-        <option name="linkSearch">index=_internal earliest=-h | stats count</option>
+        <option name="linkSearch">| tstats count from datamodel=Carbon_Black.CB_Alerts by CB_Alerts.computer_name</option>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
         <option name="numberPrecision">0</option>
@@ -102,7 +102,7 @@
         <option name="field">count</option>
         <option name="linkFields">result, afterlabel</option>
         <option name="linkView">charting</option>
-        <option name="linkSearch">index=_internal earliest=-h | timechart count</option>
+        <option name="linkSearch">| tstats count from datamodel=Carbon_Black.CB_Alerts by CB_Alerts.cb_server</option>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
         <option name="numberPrecision">0</option>
