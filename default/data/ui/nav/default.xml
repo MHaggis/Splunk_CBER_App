@@ -2,8 +2,9 @@
 <nav color="#43434A">
 
     <collection label="Carbon Black Enterprise Response">
+        <view name="overview" default='true'/>
         <view name="carbonblack-binary" default='false'/>
-        <view name="carbonblack-process" default='true'/>
+        <view name="carbonblack-process" default='false'/>
     </collection>
 
 
