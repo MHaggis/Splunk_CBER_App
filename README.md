@@ -37,7 +37,7 @@ To setup the Splunk App:
 The Carbon Black Splunk Application contains two major components. These components are process/binary search within
 the app and workflow actions that enable pivoting from standardized fields into Carbon Black searches.
 
-### Process/Binary Searche
+### Process/Binary Search
 
 The main tab within the Carbon Black Enterprise Response Splunk App allows users to perform either a process or binary search
 within Carbon Black.  The results will be displayed within the same screen.  Users can also use Carbon Black search features
