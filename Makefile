@@ -11,12 +11,10 @@ $(APPNAME).tar.gz:
 	rm -rf $(APPNAME)
 	
 	mkdir $(APPNAME) 
-	
-	cp -r ./README $(APPNAME)
+
 	cp -r ./appserver $(APPNAME)
 	cp -r ./bin $(APPNAME)
 	cp -r ./default $(APPNAME)
-	cp -r ./lookups $(APPNAME)
 	cp -r ./metadata $(APPNAME)
 	cp -r ./static $(APPNAME)
 	cp LICENSE $(APPNAME)
