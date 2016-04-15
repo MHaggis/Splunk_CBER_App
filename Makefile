@@ -1,16 +1,14 @@
 APPNAME=carbonblack-enterprise-response
-
-all: $(APPNAME).tar.gz
+VERSION=0.9.1
+all: $(APPNAME).spl
 
 clean:
-	rm -f $(APPNAME).tar.gz
+	rm -f $(APPNAME).spl
 	rm -rf $(APPNAME)
 
-$(APPNAME).tar.gz:
-	rm -f $(APPNAME).tar.gz
-	rm -rf $(APPNAME)
-	
-	mkdir $(APPNAME) 
+$(APPNAME).spl:
+
+	mkdir $(APPNAME)
 
 	cp -r ./appserver $(APPNAME)
 	cp -r ./bin $(APPNAME)
@@ -19,8 +17,8 @@ $(APPNAME).tar.gz:
 	cp -r ./static $(APPNAME)
 	cp LICENSE $(APPNAME)
 	cp README.md $(APPNAME)
-	
+
 	find $(APPNAME) -name ".*" -delete
 	find $(APPNAME) -name "*.pyc" -delete
-	
-	tar -cvzf $(APPNAME).tar.gz $(APPNAME) 
+
+	tar -cvzf $(APPNAME).spl $(APPNAME)
