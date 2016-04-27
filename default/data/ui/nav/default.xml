@@ -5,6 +5,7 @@
         <view name="overview" default='true'/>
         <view name="carbonblack-binary" default='false'/>
         <view name="carbonblack-process" default='false'/>
+        <view name="carbonblack-process-timeline" default='false'/>
     </collection>
 
 
@@ -17,4 +18,3 @@
     </collection>
 
 </nav>
-
