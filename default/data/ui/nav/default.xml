@@ -17,12 +17,9 @@
         <view name="dashboards"/>
     </collection>
 
-<<<<<<< HEAD
   <collection label="Learn">
     <view name="cber_learn"/>
     <view name="CBER_data_splunk"/>
   </collection>
 
-=======
->>>>>>> carbonblack/master
 </nav>
