@@ -62,10 +62,24 @@ Workflow Actions allow users to pivot into Carbon Black searches from standardiz
 | CB Process Search by FileName | file_name, file_path |
 | CB Process Search by Domain | domain |
 
+### Splunk Distributed Environment Configuration
+
+It is recommended to install this app on a search head and not have it replicate to indexers.
+To prevent replication to indexers add the following stanza and variables to your distsearch.conf.
+Located at SPLUNK_HOME/etc/system/local/distsearch.conf
+
+        [replicationBlacklist]
+        carbonblack = apps/carbonblack-enterprise-response/...
+
+http://docs.splunk.com/Documentation/ES/latest/Install/InstallTechnologyAdd-ons#Import_add-ons_with_a_different_naming_convention.
+
+### Splunk Enterprise Security Support (ES)
+
+Because of our naming convention, it is required to modify `inputs.conf` located in `SplunkEnterpriseSEcuritySuite/local/inputs.conf` and add `|(carbon*)` to the `[app_imports_update://update_es]` stanza.
 
 ## Contacting Carbon Black Support
 
-E-mail: support@carbonblack.com
+E-mail: dev-support@carbonblack.com
 
 ### Reporting Problems
 

@@ -23,6 +23,14 @@
                 <option name="wrap">true</option>
                 <option name="rowNumbers">false</option>
                 <option name="dataOverlayMode">none</option>
+      			<drilldown>
+		          <set token="guid">$click.value2$</set>
+                  <link>
+                    <![CDATA[
+                      /app/carbonblack-enterprise-response/carbonblack-process-timeline?form.proc_guid=$guid$
+                    ]]>
+                  </link>
+                </drilldown>
             </event>
         </panel>
     </row>

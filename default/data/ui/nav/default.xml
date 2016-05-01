@@ -5,6 +5,7 @@
         <view name="overview" default='true'/>
         <view name="carbonblack-binary" default='false'/>
         <view name="carbonblack-process" default='false'/>
+        <view name="carbonblack-process-timeline" default='false'/>
     </collection>
 
 
@@ -16,9 +17,12 @@
         <view name="dashboards"/>
     </collection>
 
+<<<<<<< HEAD
   <collection label="Learn">
     <view name="cber_learn"/>
     <view name="CBER_data_splunk"/>
   </collection>
 
+=======
+>>>>>>> carbonblack/master
 </nav>

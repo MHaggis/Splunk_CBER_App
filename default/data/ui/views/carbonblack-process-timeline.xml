@@ -1,0 +1,94 @@
+<form>
+  <label>Process Timeline</label>
+  <description>Analyze events with in a given process over time</description>
+  <fieldset submitButton="true">
+    <input type="text" token="proc_guid" searchWhenChanged="true">
+      <label>Process GUID</label>
+    </input>
+    <input type="time" token="timepicker">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <chart>
+        <search>
+          <query>index="carbonblack" process_guid="$proc_guid$" | timechart span=30m count by type</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="list.drilldown">full</option>
+        <option name="list.wrap">1</option>
+        <option name="maxLines">5</option>
+        <option name="raw.drilldown">full</option>
+        <option name="rowNumbers">false</option>
+        <option name="table.drilldown">all</option>
+        <option name="table.wrap">1</option>
+        <option name="type">list</option>
+        <option name="wrap">true</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisEnd</option>
+        <option name="charting.legend.placement">left</option>
+        <option name="charting.axisY.maximumNumber">10</option>
+        <option name="charting.axisTitleX.text">Time</option>
+        <drilldown>
+          <!-- Use set to specify the new token to be created.
+               Use any token from the page or from the click event to produce the value needed. -->
+          <set token="etype">$click.name2$</set>
+        </drilldown>
+        <option name="charting.axisTitleY.text">Count</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <!-- depends is the way we tell the content to only show when the token has a value.
+             Hint: use comma separated values if the element requires more than one token. -->
+    <event id="detail" depends="$etype$">
+      <title>Event Type: $etype$</title>
+      <search>
+        <query>index="carbonblack" process_guid="$proc_guid$" type="$etype$"</query>
+        <earliest>$timepicker.earliest$</earliest>
+        <latest>$timepicker.latest$</latest>
+      </search>
+      <earliest>$timepicker.earliest$</earliest>
+      <latest>$timepicker.latest$</latest>
+      <option name="wrap">true</option>
+      <option name="rowNumbers">0</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="list.drilldown">full</option>
+      <option name="list.wrap">1</option>
+      <option name="maxLines">5</option>
+      <option name="raw.drilldown">full</option>
+      <option name="table.drilldown">all</option>
+      <option name="table.wrap">1</option>
+      <option name="type">list</option>
+      <option name="count">10</option>
+      <fields>["host","source","sourcetype"]</fields>
+    </event>
+  </row>
+</form>
