@@ -1,0 +1,24 @@
+<dashboard>
+  <label>Getting Data Into Splunk</label>
+
+  <row>
+    <panel>
+      <html>
+        <p>Two steps are required to ingest Enterprise Response data in Splunk.</p>
+
+       <h2>Step 1</h2>
+
+       <p>&nbsp;</p>
+
+       <h2>Step 2</h2>
+
+       <h3>Broadcast events to the CBER message bus</h3>
+
+       <p>To ingest Carbon Black Enterprise Response data in Splunk, begin with utilizing the Carbon Black<a href="https://github.com/carbonblack/cb-event-forwarder" target="_blank"> cb-event-forwarder</a>. &nbsp;</p>
+
+       <p>Step by step video guide is provided <a href="http://developer.carbonblack.com/guide/enterprise-response/event-forwarder-quickstart-video/" target="_blank">here</a>.</p>
+
+      </html>
+    </panel>
+  </row>
+</dashboard>

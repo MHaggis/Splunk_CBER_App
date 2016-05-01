@@ -16,5 +16,9 @@
         <view name="dashboards"/>
     </collection>
 
-</nav>
+  <collection label="Learn">
+    <view name="cber_learn"/>
+    <view name="CBER_data_splunk"/>
+  </collection>
 
+</nav>

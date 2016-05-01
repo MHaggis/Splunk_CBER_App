@@ -1,0 +1,21 @@
+<form script="Splunk_CBER_App:autodiscover.js">
+  <label>Carbon Black Enterprise Response</label>
+  <description>Learn how to search, analyze and hunt for evil using Carbon Black Enterprise Response with Splunk</description>
+  <row>
+    <panel>
+      <html>
+        <h1>Getting Started:</h1>
+        <p>Below is a showcase to get started in learning how to use Carbon Black Enterprise Response with Splunk.</p>
+        <p>Get involved in the Carbon Black community <a class="external text" target="_blank" href="https://community.carbonblack.com">community.carbonblack.com</a></p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel ref="learning_CBER" app="Splunk_CBER_App"></panel>
+    <panel ref="CBER_community" app="Splunk_CBER_App"></panel>
+    <panel ref="CBER_dev_relations" app="Splunk_CBER_App"></panel>
+  </row>
+  <row>
+  <panel ref="CBER_data_splunk" app="Splunk_CBER_App"></panel>
+  </row>
+</form>

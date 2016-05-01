@@ -1,0 +1,16 @@
+<panel>
+  <title>Carbon Black Community: Questions &amp; Help</title>
+  <html>
+        <ul>
+          <li>
+            <a class="external text" target="_blank" href="https://community.carbonblack.com/community/developer-relations">community.carbonblack.com</a> - Developer Relations Forum
+          </li>
+          <li>
+            <a class="external text" target="_blank" href="https://github.com/carbonblack">github.com/carbonblack</a> - Official Carbon Black Github
+          </li>
+          <li>
+            <a class="external text" target="_blank" href="http://developer.carbonblack.com/">developer.carbonblack.com</a> - Carbon Black Developer Network
+          </li>
+        </ul>
+      </html>
+</panel>

@@ -1,0 +1,12 @@
+<panel>
+  <title>Learning Carbon Black Enterprise Response</title>
+  <html>
+        <p>If you're new to Carbon Black Enterprise Response, please review these pages:</p>
+        <ul>
+          <li><a class="external text" target="_blank" href="https://www.carbonblack.com/products/enterprise-response">Product Overview: What is CBER?</a></li>
+          <li><a class="external text" target="_blank" href="https://youtu.be/za0ST6POzBk">Video: What is Carbon Black Enterprise Response</a></li>
+          <li><a class="external text" target="_blank" href="https://www.carbonblack.com/resources/webinars/">Carbon Black Webinars</a></li>
+          <li><a class="external text" target="_blank" href="https://www.carbonblack.com/resources/training-carbon-black-enterprise-response/">Enterprise Response Training</a></li>
+        </ul>
+      </html>
+</panel>
