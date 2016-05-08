@@ -1,0 +1,17 @@
+<panel>
+  <title>Getting Data Into Splunk</title>
+  <html>
+      <p>Two steps are required to ingest Enterprise Response data in Splunk</p>
+      <p><h2>Step 1</h2></p>
+      <ul>
+        <li>Determine preferred method of deployment. Ex - Install Splunk UF on CB Master. Send event data direct to indexers.</li>
+        <li>Deploy Carbon Black Enterprise Response TA <a class="external text" target="_blank" href="https://splunkbase.splunk.com/app/2790/">Splunkbase.splunk.com</a>. </li>
+        <li>Assistance? Ask here - <a class="external text" target="_blank" href="https://answers.splunk.com/app/questions/2790.html">answers.splunk.com</a></li>
+      </ul>
+      <p><h2>Step 2</h2></p>
+      <ul>
+        <li>Broadcast events to the CBER message bus utilizing the Carbon Black<a href="https://github.com/carbonblack/cb-event-forwarder" target="_blank"> cb-event-forwarder</a></li>
+      	<li>Step by step video guide is provided <a href="http://developer.carbonblack.com/guide/enterprise-response/event-forwarder-quickstart-video/" target="_blank">here</a>.</li>
+      </ul>
+    </html>
+</panel>
